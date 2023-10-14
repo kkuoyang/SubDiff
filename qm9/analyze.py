@@ -222,6 +222,10 @@ def check_stability(positions, atom_type, dataset_info, debug=False):
             p2 = np.array([x[j], y[j], z[j]])
             dist = np.sqrt(np.sum((p1 - p2) ** 2))
             atom1, atom2 = atom_decoder[atom_type[i]], atom_decoder[atom_type[j]]
+            print('====================================')
+            print(atom1)
+            print(atom2)
+            print('====================================')
             pair = sorted([atom_type[i], atom_type[j]])
             if dataset_info['name'] == 'qm9' or dataset_info['name'] == 'qm9_second_half' or dataset_info['name'] == 'qm9_first_half':
                 order = bond_analyze.get_bond_order(atom1, atom2, dist)

@@ -142,6 +142,9 @@ args.wandb_usr = utils.get_wandb_username(args.wandb_usr)
 
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 device = torch.device("cuda" if args.cuda else "cpu")
+# print('========================')
+# print('device:', device)
+# print('========================')
 dtype = torch.float32
 
 if args.resume is not None:
@@ -186,6 +189,9 @@ wandb.save('*.txt')
 
 # Retrieve QM9 dataloaders
 dataloaders, charge_scale = dataset.retrieve_dataloaders(args)
+# print('----------------------------------------------')
+# print(dataloaders)
+# print('----------------------------------------------')
 
 data_dummy = next(iter(dataloaders['train']))
 
@@ -252,7 +258,7 @@ def main():
         model_ema = model
         model_ema_dp = model_dp
 
-    best_nll_val = 1e8
+    best_nll_val = 1e8 
     best_nll_test = 1e8
     for epoch in range(args.start_epoch, args.n_epochs):
         start_epoch = time.time()

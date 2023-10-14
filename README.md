@@ -1,5 +1,5 @@
 # SubDiff: Subgraph Latent Diffusion Model
-To help reviewers better understand our SubDiff, we provide source code and partial datasets. You can run our code by following the installation tips below. Since our work is still in the review phase, we sincerely hope that reviewers will not widely advertise our code. Thank you for your careful reviewing.
+To help reviewers better understand our SubDiff, we provide source code and partial datasets. You can run our code by following the installation tips below. Since our work is still in the review phase, we sincerely hope that reviewers will not widely advertise our code. Thank you for your careful reviewing. Note that your first running may take a long time, since our preprocess stage.
 
 
 ## Environment
@@ -8,6 +8,12 @@ Install the required packages from `requirements.txt`. A simplified version of t
 
 **Note**: If you want to set up a rdkit environment, it may be easiest to install conda and run:
 ``conda create -c conda-forge -n my-rdkit-env rdkit`` and then install the other required packages. But the code should still run without rdkit installed though.
+
+
+## Preprocess
+
+### For QM9
+
 
 
 ## Train the SubDiff

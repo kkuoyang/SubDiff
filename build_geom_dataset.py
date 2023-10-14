@@ -9,6 +9,9 @@ from qm9.data import collate as qm9_collate
 
 def extract_conformers(args):
     drugs_file = os.path.join(args.data_dir, args.data_file)
+    print(args.data_dir)
+    print(args.data_file)
+    print(drugs_file)
     save_file = f"geom_drugs_{'no_h_' if args.remove_h else ''}{args.conformations}"
     smiles_list_file = 'geom_drugs_smiles.txt'
     number_atoms_file = f"geom_drugs_n_{'no_h_' if args.remove_h else ''}{args.conformations}"
@@ -238,7 +241,7 @@ if __name__ == '__main__':
     parser.add_argument("--conformations", type=int, default=30,
                         help="Max number of conformations kept for each molecule.")
     parser.add_argument("--remove_h", action='store_true', help="Remove hydrogens from the dataset.")
-    parser.add_argument("--data_dir", type=str, default='~/diffusion/data/geom/')
+    parser.add_argument("--data_dir", type=str, default='/home/yk/GeoLDM-main/data/geom/')
     parser.add_argument("--data_file", type=str, default="drugs_crude.msgpack")
     args = parser.parse_args()
     extract_conformers(args)

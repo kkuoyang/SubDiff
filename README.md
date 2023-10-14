@@ -14,7 +14,19 @@ Install the required packages from `requirements.txt`. A simplified version of t
 
 ### For QM9
 
+It consists of two phases: merging operation learning and motif vocabulary construction.
 
+For merging operation learning, run the commands in form of
+
+```
+python merging_operation_learning.py --dataset QM9 --num_workers 60
+```
+
+For motif vocabulary constraction, run the commands in form of
+
+```
+python motif_vocab_construction.py --dataset QM9 --num_operations 1000 --num_workers 60
+```
 
 ## Train the SubDiff
 

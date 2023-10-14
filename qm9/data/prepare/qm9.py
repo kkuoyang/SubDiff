@@ -8,16 +8,21 @@ import urllib
 from os.path import join as join
 import urllib.request
 
-from qm9.data.prepare.process import process_xyz_files, process_xyz_gdb9
+from qm9.data.prepare.process import process_xyz_files, process_xyz_gdb9, process_xyz_files_1
 from qm9.data.prepare.utils import download_data, is_int, cleanup_file
+import random
+from dgl.data.qm9_edge import QM9EdgeDataset
 
 
-def download_dataset_qm9(datadir, dataname, splits=None, calculate_thermo=True, exclude=True, cleanup=True):
+
+def download_dataset_qm9(datadir, dataname, splits=None, calculate_thermo=True, exclude=True, cleanup=False):
     """
     Download and prepare the QM9 (GDB9) dataset.
     """
+
     # Define directory for which data will be output.
     gdb9dir = join(*[datadir, dataname])
+
 
     # Important to avoid a race condition
     os.makedirs(gdb9dir, exist_ok=True)
@@ -28,22 +33,34 @@ def download_dataset_qm9(datadir, dataname, splits=None, calculate_thermo=True, 
     logging.info('Beginning download of GDB9 dataset!')
     gdb9_url_data = 'https://springernature.figshare.com/ndownloader/files/3195389'
     gdb9_tar_data = join(gdb9dir, 'dsgdb9nsd.xyz.tar.bz2')
+    # gdb9_tar_data = QM9EdgeDataset(raw_dir=gdb9dir)
     # gdb9_tar_file = join(gdb9dir, 'dsgdb9nsd.xyz.tar.bz2')
     # gdb9_tar_data =
     # tardata = tarfile.open(gdb9_tar_file, 'r')
     # files = tardata.getmembers()
-    urllib.request.urlretrieve(gdb9_url_data, filename=gdb9_tar_data)
+
+    # urllib.request.urlretrieve(gdb9_url_data, filename=gdb9_tar_data)
     logging.info('GDB9 dataset downloaded successfully!')
 
     # If splits are not specified, automatically generate them.
     if splits is None:
         splits = gen_splits_gdb9(gdb9dir, cleanup)
+        # print(splits)
 
     # Process GDB9 dataset, and return dictionary of splits
     gdb9_data = {}
+    gdb9_data_smiles = {}
     for split, split_idx in splits.items():
-        gdb9_data[split] = process_xyz_files(
+        # gdb9_data[split] = process_xyz_files(
+        #     gdb9_tar_data, process_xyz_gdb9, file_idx_list=split_idx, stack=True)
+        
+        
+        molecules, smiles = process_xyz_files_1(
             gdb9_tar_data, process_xyz_gdb9, file_idx_list=split_idx, stack=True)
+        
+        gdb9_data[split] = molecules
+        gdb9_data_smiles[split] = smiles
+        # print(gdb9_data[split])
 
     # Subtract thermochemical energy if desired.
     if calculate_thermo:
@@ -59,11 +76,15 @@ def download_dataset_qm9(datadir, dataname, splits=None, calculate_thermo=True, 
     for split, data in gdb9_data.items():
         savedir = join(gdb9dir, split+'.npz')
         np.savez_compressed(savedir, **data)
+    
+    for split, data in gdb9_data_smiles.items():
+        savedir = join(gdb9dir, split+'.smiles')
+        np.savez_compressed(savedir, **data)
 
     logging.info('Processing/saving complete!')
 
 
-def gen_splits_gdb9(gdb9dir, cleanup=True):
+def gen_splits_gdb9(gdb9dir, cleanup=False):
     """
     Generate GDB9 training/validation/test splits used.
 
@@ -82,7 +103,8 @@ def gen_splits_gdb9(gdb9dir, cleanup=True):
     logging.info('Splits were not specified! Automatically generating.')
     gdb9_url_excluded = 'https://springernature.figshare.com/ndownloader/files/3195404'
     gdb9_txt_excluded = join(gdb9dir, 'uncharacterized.txt')
-    urllib.request.urlretrieve(gdb9_url_excluded, filename=gdb9_txt_excluded)
+
+    # urllib.request.urlretrieve(gdb9_url_excluded, filename=gdb9_txt_excluded)
 
     # First get list of excluded indices
     excluded_strings = []
@@ -122,7 +144,7 @@ def gen_splits_gdb9(gdb9dir, cleanup=True):
 
     assert(len(extra) == 0), 'Split was inexact {} {} {} {}'.format(
         len(train), len(valid), len(test), len(extra))
-
+    
     train = included_idxs[train]
     valid = included_idxs[valid]
     test = included_idxs[test]
@@ -135,7 +157,7 @@ def gen_splits_gdb9(gdb9dir, cleanup=True):
     return splits
 
 
-def get_thermo_dict(gdb9dir, cleanup=True):
+def get_thermo_dict(gdb9dir, cleanup=False):
     """
     Get dictionary of thermochemical energy to subtract off from
     properties of molecules.
@@ -147,7 +169,7 @@ def get_thermo_dict(gdb9dir, cleanup=True):
     gdb9_url_thermo = 'https://springernature.figshare.com/ndownloader/files/3195395'
     gdb9_txt_thermo = join(gdb9dir, 'atomref.txt')
 
-    urllib.request.urlretrieve(gdb9_url_thermo, filename=gdb9_txt_thermo)
+    # urllib.request.urlretrieve(gdb9_url_thermo, filename=gdb9_txt_thermo)
 
     # Loop over file of thermochemical energies
     therm_targets = ['zpve', 'U0', 'U', 'H', 'G', 'Cv']
@@ -213,6 +235,7 @@ def get_unique_charges(charges):
     Get count of each charge for each molecule.
     """
     # Create a dictionary of charges
+
     charge_counts = {z: np.zeros(len(charges), dtype=np.int)
                      for z in np.unique(charges)}
     print(charge_counts.keys())

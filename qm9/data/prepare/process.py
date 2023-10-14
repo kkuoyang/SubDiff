@@ -32,8 +32,26 @@ def split_dataset(data, split_idxs):
 
 # def save_database()
 
-
 def process_xyz_files(data, process_file_fn, file_ext=None, file_idx_list=None, stack=True):
+    molecules = []
+    prop_strings= ['mu', 'alpha', 'homo', 'lumo', 'gap', 'r2', 'zpve', 'U0', 'U', 'H', 'G', 'Cv', 'U0_atom', 'U_atom', 'H_atom', 'G_atom', 'A', 'B', 'C']
+    count = 0
+    for graph, labels in data:
+        count += 1
+        index = count
+        num_atoms = graph.num_nodes()
+        atom_charges = int(graph.ndata['attr'].max())
+        atom_positions = graph.ndata['pos']
+        molecule = {'num_atoms': num_atoms, 'charges': atom_charges, 'positions': atom_positions, 'index': index, 'edges': graph.edges()}
+        mol_props = dict(zip(prop_strings, labels[0]))
+        molecule.update(mol_props)
+        molecule = {key: torch.tensor(val) for key, val in molecule.items()}
+        molecules.append(molecule)
+ 
+    return molecules
+
+
+def process_xyz_files_1(data, process_file_fn, file_ext=None, file_idx_list=None, stack=True):
     """
     Take a set of datafiles and apply a predefined data processing script to each
     one. Data can be stored in a directory, tarfile, or zipfile. An optional
@@ -84,10 +102,12 @@ def process_xyz_files(data, process_file_fn, file_ext=None, file_idx_list=None, 
     # Process each file accordingly using process_file_fn
 
     molecules = []
-
+    smiles = []
     for file in files:
         with readfile(file) as openfile:
-            molecules.append(process_file_fn(openfile))
+            molecule, smile = process_file_fn(openfile)
+            molecules.append(molecule)
+            smiles.append(smile)
 
     # Check that all molecules have the same set of items in their dictionary:
     props = molecules[0].keys()
@@ -95,12 +115,18 @@ def process_xyz_files(data, process_file_fn, file_ext=None, file_idx_list=None, 
 
     # Convert list-of-dicts to dict-of-lists
     molecules = {prop: [mol[prop] for mol in molecules] for prop in props}
-
+    # print('=====================')
+    # print(molecules['num_atoms'])
+    # print(len(molecules))
     # If stacking is desireable, pad and then stack.
     if stack:
         molecules = {key: pad_sequence(val, batch_first=True) if val[0].dim() > 0 else torch.stack(val) for key, val in molecules.items()}
-
-    return molecules
+        # molecules = {key: pad_sequence(val, batch_first=True) for key, val in molecules.items()}
+        # print(molecules['num_atoms'])
+    
+    smiles_dic = {'smiles' : smiles}
+    # molecules.update(smiles_dic)
+    return molecules, smiles_dic
 
 
 def process_xyz_md17(datafile):
@@ -123,11 +149,11 @@ def process_xyz_md17(datafile):
     atom_positions = []
     atom_types = []
     for line in xyz_lines:
-        if line[0] is '#':
+        if line[0] == '#':
             continue
-        if line_counter is 0:
+        if line_counter == 0:
             num_atoms = int(line)
-        elif line_counter is 1:
+        elif line_counter == 1:
             split = line.split(';')
             assert (len(split) == 1 or len(split) == 2), 'Improperly formatted energy/force line.'
             if (len(split) == 1):
@@ -140,7 +166,7 @@ def process_xyz_md17(datafile):
                 atom_forces = [[float(x.strip('[]\n')) for x in force.split(',')] for force in f]
         else:
             split = line.split()
-            if len(split) is 4:
+            if len(split) == 4:
                 type, x, y, z = split
                 atom_types.append(split[0])
                 atom_positions.append([float(x) for x in split[1:]])
@@ -177,11 +203,14 @@ def process_xyz_gdb9(datafile):
     TODO : Replace breakpoint with a more informative failure?
     """
     xyz_lines = [line.decode('UTF-8') for line in datafile.readlines()]
+    # print('----xyz_lines------')
+    # print(xyz_lines)
 
     num_atoms = int(xyz_lines[0])
     mol_props = xyz_lines[1].split()
     mol_xyz = xyz_lines[2:num_atoms+2]
     mol_freq = xyz_lines[num_atoms+2]
+    smile = xyz_lines[num_atoms+3]
 
     atom_charges, atom_positions = [], []
     for line in mol_xyz:
@@ -198,5 +227,7 @@ def process_xyz_gdb9(datafile):
     molecule = {'num_atoms': num_atoms, 'charges': atom_charges, 'positions': atom_positions}
     molecule.update(mol_props)
     molecule = {key: torch.tensor(val) for key, val in molecule.items()}
+    # mol_smiles = {'smile': smile}
+    # molecule.update(mol_smiles)
 
-    return molecule
+    return molecule, smile

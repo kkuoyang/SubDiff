@@ -17,7 +17,7 @@ def get_classifier(dir_path='', device='cpu'):
     with open(join(dir_path, 'args.pickle'), 'rb') as f:
         args_classifier = pickle.load(f)
     args_classifier.device = device
-    args_classifier.model_name = 'egnn'
+    args_classifier.model_name = 'segnn'
     classifier = main_qm9_prop.get_model(args_classifier)
     classifier_state_dict = torch.load(join(dir_path, 'best_checkpoint.npy'), map_location=torch.device('cpu'))
     classifier.load_state_dict(classifier_state_dict)

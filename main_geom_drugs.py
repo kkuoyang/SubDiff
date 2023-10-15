@@ -39,9 +39,9 @@ parser.add_argument('--latent_nf', type=int, default=4,
 parser.add_argument('--kl_weight', type=float, default=0.01,
                     help='weight of KL term in ELBO')
 
-parser.add_argument('--model', type=str, default='egnn_dynamics',
+parser.add_argument('--model', type=str, default='segnn_dynamics',
                     help='our_dynamics | schnet | simple_dynamics | '
-                         'kernel_dynamics | egnn_dynamics |gnn_dynamics')
+                         'kernel_dynamics | segnn_dynamics |gnn_dynamics')
 parser.add_argument('--probabilistic_model', type=str, default='diffusion',
                     help='diffusion')
 
@@ -66,7 +66,7 @@ parser.add_argument('--clip_grad', type=eval, default=True,
                     help='True | False')
 parser.add_argument('--trace', type=str, default='hutch',
                     help='hutch | exact')
-# EGNN args -->
+# SEGNN args -->
 parser.add_argument('--n_layers', type=int, default=6,
                     help='number of layers')
 parser.add_argument('--inv_sublayers', type=int, default=1,
@@ -76,12 +76,12 @@ parser.add_argument('--nf', type=int, default=192,
 parser.add_argument('--tanh', type=eval, default=True,
                     help='use tanh in the coord_mlp')
 parser.add_argument('--attention', type=eval, default=True,
-                    help='use attention in the EGNN')
+                    help='use attention in the SEGNN')
 parser.add_argument('--norm_constant', type=float, default=1,
                     help='diff/(|diff| + norm_constant)')
 parser.add_argument('--sin_embedding', type=eval, default=False,
                     help='whether using or not the sin embedding')
-# <-- EGNN args
+# <-- SEGNN args
 parser.add_argument('--ode_regularization', type=float, default=1e-3)
 parser.add_argument('--dataset', type=str, default='geom',
                     help='dataset name')
@@ -100,7 +100,7 @@ parser.add_argument('--num_workers', type=int, default=0,
                     help='Number of worker for the dataloader')
 parser.add_argument('--test_epochs', type=int, default=1)
 parser.add_argument('--data_augmentation', type=eval, default=False,
-                    help='use attention in the EGNN')
+                    help='use attention in the SEGNN')
 parser.add_argument("--conditioning", nargs='+', default=[],
                     help='multiple arguments can be passed, '
                          'including: homo | onehot | lumo | num_atoms | etc. '
@@ -121,7 +121,7 @@ parser.add_argument('--remove_h', action='store_true')
 parser.add_argument('--include_charges', type=eval, default=False, help='include atom charge or not')
 parser.add_argument('--visualize_every_batch', type=int, default=5000)
 parser.add_argument('--normalization_factor', type=float,
-                    default=100, help="Normalize the sum aggregation of EGNN")
+                    default=100, help="Normalize the sum aggregation of SEGNN")
 parser.add_argument('--aggregation_method', type=str, default='sum',
                     help='"sum" or "mean" aggregation for the graph network')
 parser.add_argument('--filter_molecule_size', type=int, default=None,

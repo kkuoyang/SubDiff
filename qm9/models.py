@@ -2,7 +2,7 @@ import torch
 from torch.distributions.categorical import Categorical
 
 import numpy as np
-from egnn.models import EGNN_dynamics_QM9, EGNN_encoder_QM9, EGNN_decoder_QM9
+from segnn.models import SEGNN_dynamics_QM9, SEGNN_encoder_QM9, SEGNN_decoder_QM9
 
 from equivariant_diffusion.en_diffusion import EnVariationalDiffusion, EnHierarchicalVAE, EnLatentDiffusion
 
@@ -24,7 +24,7 @@ def get_model(args, device, dataset_info, dataloader_train):
         print('Warning: dynamics model is _not_ conditioned on time.')
         dynamics_in_node_nf = in_node_nf
 
-    net_dynamics = EGNN_dynamics_QM9(
+    net_dynamics = SEGNN_dynamics_QM9(
         in_node_nf=dynamics_in_node_nf, context_node_nf=args.context_node_nf,
         n_dims=3, device=device, hidden_nf=args.nf,
         act_fn=torch.nn.SiLU(), n_layers=args.n_layers,
@@ -66,7 +66,7 @@ def get_autoencoder(args, device, dataset_info, dataloader_train):
     print('Autoencoder models are _not_ conditioned on time.')
         # dynamics_in_node_nf = in_node_nf
     
-    encoder = EGNN_encoder_QM9(
+    encoder = SEGNN_encoder_QM9(
         in_node_nf=in_node_nf, context_node_nf=args.context_node_nf, out_node_nf=args.latent_nf,
         n_dims=3, device=device, hidden_nf=args.nf,
         act_fn=torch.nn.SiLU(), n_layers=1,
@@ -76,7 +76,7 @@ def get_autoencoder(args, device, dataset_info, dataloader_train):
         include_charges=args.include_charges
         )
     
-    decoder = EGNN_decoder_QM9(
+    decoder = SEGNN_decoder_QM9(
         in_node_nf=args.latent_nf, context_node_nf=args.context_node_nf, out_node_nf=in_node_nf,
         n_dims=3, device=device, hidden_nf=args.nf,
         act_fn=torch.nn.SiLU(), n_layers=args.n_layers,
@@ -137,7 +137,7 @@ def get_latent_diffusion(args, device, dataset_info, dataloader_train):
         print('Warning: dynamics model is _not_ conditioned on time.')
         dynamics_in_node_nf = in_node_nf
 
-    net_dynamics = EGNN_dynamics_QM9(
+    net_dynamics = SEGNN_dynamics_QM9(
         in_node_nf=dynamics_in_node_nf, context_node_nf=args.context_node_nf,
         n_dims=3, device=device, hidden_nf=args.nf,
         act_fn=torch.nn.SiLU(), n_layers=args.n_layers,

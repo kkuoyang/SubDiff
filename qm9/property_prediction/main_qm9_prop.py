@@ -1,6 +1,6 @@
 import sys, os
 sys.path.append(os.path.abspath(os.path.join('../../')))
-from qm9.property_prediction.models_property import EGNN, Naive, NumNodes
+from qm9.property_prediction.models_property import SEGNN, Naive, NumNodes
 import torch
 from torch import nn, optim
 import argparse
@@ -100,8 +100,8 @@ def test(model, epoch, loader, mean, mad, property, device, log_interval, debug_
 
 
 def get_model(args):
-    if args.model_name == 'egnn':
-        model = EGNN(in_node_nf=5, in_edge_nf=0, hidden_nf=args.nf, device=args.device, n_layers=args.n_layers,
+    if args.model_name == 'segnn':
+        model = SEGNN(in_node_nf=5, in_edge_nf=0, hidden_nf=args.nf, device=args.device, n_layers=args.n_layers,
                      coords_weight=1.0,
                      attention=args.attention, node_attr=args.node_attr)
     elif args.model_name == 'naive':
@@ -163,7 +163,7 @@ if __name__ == "__main__":
     parser.add_argument('--save_path', type=float, default=1e-16, metavar='N',
                         help='weight decay')
     parser.add_argument('--model_name', type=str, default='numnodes', metavar='N',
-                        help='egnn | naive | numnodes')
+                        help='segnn | naive | numnodes')
     parser.add_argument('--save_model', type=eval, default=True)
 
     args = parser.parse_args()

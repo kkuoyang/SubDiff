@@ -42,9 +42,9 @@ class E_GCL_mask(E_GCL):
 
 
 
-class EGNN(nn.Module):
+class SEGNN(nn.Module):
     def __init__(self, in_node_nf, in_edge_nf, hidden_nf, device='cpu', act_fn=nn.SiLU(), n_layers=4, coords_weight=1.0, attention=False, node_attr=1):
-        super(EGNN, self).__init__()
+        super(SEGNN, self).__init__()
         self.hidden_nf = hidden_nf
         self.device = device
         self.n_layers = n_layers
@@ -86,9 +86,9 @@ class EGNN(nn.Module):
 
 
 
-class EGNN(nn.Module):
+class SEGNN(nn.Module):
     def __init__(self, in_node_nf, in_edge_nf, hidden_nf, device='cpu', act_fn=nn.SiLU(), n_layers=4, coords_weight=1.0, attention=False, node_attr=1):
-        super(EGNN, self).__init__()
+        super(SEGNN, self).__init__()
         self.hidden_nf = hidden_nf
         self.device = device
         self.n_layers = n_layers
